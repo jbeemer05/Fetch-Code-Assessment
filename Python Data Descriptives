@@ -1,0 +1,33 @@
+import pandas as pd
+
+# Specify the paths to your CSV files
+users_csv = "USER_TAKEHOME.csv"
+transactions_csv = "TRANSACTION_TAKEHOME.csv"
+products_csv = "PRODUCTS_TAKEHOME.csv"
+
+# Read the CSV files into pandas DataFrames
+users = pd.read_csv(users_csv)
+transactions = pd.read_csv(transactions_csv)
+products = pd.read_csv(products_csv)
+
+# Display the first few rows of each DataFrame
+print(users.head())
+print(transactions.head())
+print(products.head())
+
+# Function to generate summary statistics for a dataset
+def summarize_dataset(df, title):
+    print(f"Summary Statistics for {title}:\n")
+    summary = df.describe(include='all').transpose()
+    summary['missing_%'] = (df.isnull().sum() / len(df)) * 100
+    return summary
+
+# Generate summary statistics for each dataset
+products_summary = summarize_dataset(products, "Products Dataset")
+transactions_summary = summarize_dataset(transactions, "Transactions Dataset")
+users_summary = summarize_dataset(users, "Users Dataset")
+
+# Display summaries
+print(products_summary)
+print(transactions_summary)
+print(users_summary)
