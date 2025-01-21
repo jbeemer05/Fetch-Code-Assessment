@@ -1,0 +1,64 @@
+-- This was done in SQLlite
+
+-- Question 1: What are the top 5 brands by receipts scanned among users 21 and over?
+SELECT 
+    pt.BRAND, 															--Brand	
+    COUNT(DISTINCT tt.RECEIPT_ID) AS receipts_scanned					--Distinct count of Receipts Scanned	
+FROM TRANSACTION_TAKEHOME tt
+JOIN PRODUCTS_TAKEHOME pt ON tt.BARCODE = pt.BARCODE
+JOIN USER_TAKEHOME ut ON tt.USER_ID = ut.ID
+WHERE 1=1
+    AND ut.BIRTH_DATE <= DATE('now', '-21 years')						--Filter Users that are at least 21 years or older
+    AND pt.BRAND IS NOT NULL											--Filter out null Brands
+    AND pt.BRAND != ""													--Filter empty string Brands
+GROUP BY pt.BRAND														--Group by Brand to get the Number of Receipts Scanned
+ORDER BY receipts_scanned DESC											--Order by Number of Receipts Scanned
+LIMIT 5;																--Limit to the Top 5
+
+-- The Top 5 Brands by receipts scanned among users 21 and over are: 
+-- 1. Nerds Candy (14)
+-- 2. Dove (14)
+-- 3. Sour Patch Kids (13)
+-- 4. Hershey's (13)
+-- 5. Coca-Cola (13) 
+
+-- Question 1: What are the top 5 brands by sales among users that have had their account for at least six months?
+SELECT 
+    pt.BRAND, 											--Brand	
+    SUM(tt.FINAL_SALE) AS total_sales 					--Sum of Final Sales
+FROM TRANSACTION_TAKEHOME tt
+JOIN PRODUCTS_TAKEHOME pt ON tt.BARCODE = pt.BARCODE
+JOIN USER_TAKEHOME ut ON tt.USER_ID = ut.ID
+WHERE 1=1
+	AND ut.CREATED_DATE <= DATE('now', '-6 months')		--Filter Users that were created at least 6 months ago
+    AND pt.BRAND IS NOT NULL							--Filter out null Brands
+    AND pt.BRAND != ""									--Filter empty string Brands
+GROUP BY pt.BRAND										--Group by Brand to get the total sales
+ORDER BY total_sales DESC 								--Order by Total Sales
+LIMIT 5;												--Limit to the Top 5
+
+-- The Top 5 Brands by sales among users that have had their account for at least six months are:
+-- 1. Coca-Cola ($2,592.1)
+-- 2. Annie's Homegrown Grocery ($2,383.92)
+-- 3. Dove ($2,327.47)
+-- 4. Barefoot ($2,284.59)
+-- 5. Oribe ($2,085.93)
+
+-- Question 3: Which is the leading brand in the Dips & Salsa category?
+SELECT 
+    pt.BRAND,											--Brand	
+    SUM(tt.FINAL_SALE) AS total_sales, 					--Sum of Final Sales
+    SUM(tt.FINAL_QUANTITY) AS total_quantity 			--Sum of Final Quantity 
+FROM TRANSACTION_TAKEHOME tt
+JOIN PRODUCTS_TAKEHOME pt ON tt.BARCODE = pt.BARCODE
+JOIN USER_TAKEHOME ut ON tt.USER_ID = ut.ID
+WHERE 1=1
+    AND pt.CATEGORY_2 LIKE '%Dips & Salsa%'  			--Filter for only Dips & Salsa category
+    AND pt.BRAND IS NOT NULL 							--Filter out null Brands
+    AND pt.BRAND != ""									--Filter empty string Brands
+GROUP BY pt.BRAND										--Group by Brand and Purchase Year to get the total sales
+ORDER BY total_sales DESC 								--Order by Total Sales
+;
+
+-- Making the assumption that the leading brand is categorized by the most total sales and is based on all data, not just recent sales. 
+-- Tostitos had the highest sales and quantity sold. Selling $496.65 and 80 quantity in the Dips & Chips category.
